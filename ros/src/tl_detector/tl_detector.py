@@ -54,7 +54,6 @@ class TLDetector(object):
         self.upcoming_red_light_pub = rospy.Publisher('/traffic_waypoint', Int32, queue_size=1)
 
         self.bridge = CvBridge()
-        self.light_classifier = TLClassifier()
         self.listener = tf.TransformListener()
 
         # Traffic Light State.
@@ -62,7 +61,13 @@ class TLDetector(object):
 
         self.last_wp = -1
         self.state_cnt = 0
-        self.skip_step = 7
+
+        self.skip_step = self.config['skip_step']
+        self.is_debug = self.config['is_debug']
+        self.threshold = self.config['threshold']
+
+
+        self.light_classifier = TLClassifier(is_debug=self.is_debug,threshold=self.threshold)
 
         rospy.spin()
 
@@ -99,7 +104,7 @@ class TLDetector(object):
             msg (Image): image from car-mounted camera
 
         """
-        # For perfomance purpose skip every self.skip_step
+        # For perfomance purpose we detect light from every self.skip_step image
         self.limit = (self.limit + 1) % self.skip_step
         if self.limit !=0:
             return
@@ -109,7 +114,8 @@ class TLDetector(object):
         self.camera_image = msg
         light_wp, cur_state = self.process_traffic_lights()
 
-        rospy.loginfo("Traffic light waypoint: {0}; state: {1}".format( light_wp, self.get_light_state_string( cur_state) ) )
+        if self.is_debug:
+            rospy.loginfo("Traffic light waypoint: {0}; state: {1}".format( light_wp, self.get_light_state_string( cur_state) ) )
 
         '''
         Publish upcoming red lights at camera frequency.
@@ -125,15 +131,17 @@ class TLDetector(object):
                 light_wp = -1
             self.last_wp = light_wp
             self.upcoming_red_light_pub.publish(Int32(light_wp))
-            rospy.loginfo("Publish red light at waypoint {}; state {} {}".format(light_wp, cur_state, self.get_light_state_string( cur_state) ))
+            if self.is_debug:
+                rospy.loginfo("Publish red light at waypoint {}; state {} {}".format(light_wp, cur_state, self.get_light_state_string( cur_state) ))
         else:
             self.upcoming_red_light_pub.publish(Int32(self.last_wp))
-            rospy.loginfo("Publish red light at waypoint {}".format(self.last_wp))
+            if self.is_debug:
+                rospy.loginfo("Publish red light at waypoint {}".format(self.last_wp))
         self.state_cnt += 1
 
         # Print light state for debugging.
-
-        rospy.loginfo("TRAFFIC_LIGHT: {}; state count: {}".format(self.get_light_state_string(self.state), self.state_cnt))
+        if self.is_debug:
+            rospy.loginfo("TRAFFIC_LIGHT: {}; state count: {}".format(self.get_light_state_string(self.state), self.state_cnt))
 
     def get_closest_waypoint(self, x, y):
         """Identifies the closest path waypoint to the given position
@@ -205,7 +213,8 @@ class TLDetector(object):
                 d = temp_wp_idx - car_wp_idx
 
                 if 0 <= d < diff:
-                    rospy.loginfo("Number of waypoints: {0}; distance to stopline: {1}".format( diff, d ) )
+                    if self.is_debug:
+                        rospy.loginfo("Number of waypoints: {0}; distance to stopline: {1}".format( diff, d ) )
                     diff = d
                     closest_light = light
                     line_wp_idx = temp_wp_idx

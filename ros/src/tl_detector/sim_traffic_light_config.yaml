@@ -12,3 +12,5 @@ stop_line_positions:
     - [351.84, 1574.65]
 is_debug: False
 is_site: False
+skip_step: 7
+threshold: 0.4
