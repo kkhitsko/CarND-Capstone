@@ -336,7 +336,7 @@ geometry_msgs::TwistStamped PurePursuit::outputTwist(geometry_msgs::Twist t) con
 
 
   double a = v * omega;
-  ROS_INFO("lateral accel = %lf", a);
+  //ROS_INFO("lateral accel = %lf", a);
 
   twist.twist.linear.x = fabs(a) > g_lateral_accel_limit ? max_v
                     : v;
@@ -349,13 +349,13 @@ geometry_msgs::TwistStamped PurePursuit::go()
 {
   if(!pose_set_ || !waypoint_set_ || !velocity_set_){
     if(!pose_set_) {
-       ROS_WARN("position is missing");
+       //ROS_WARN("position is missing");
      }
      if(!waypoint_set_) {
-       ROS_WARN("waypoint is missing");
+       //ROS_WARN("waypoint is missing");
      }
      if(!velocity_set_) {
-       ROS_WARN("velocity is missing");
+       //ROS_WARN("velocity is missing");
     }
     return outputZero();
   }
