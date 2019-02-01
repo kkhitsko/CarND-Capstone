@@ -38,8 +38,6 @@ class TLDetector(object):
         sub3 = rospy.Subscriber('/image_color', Image, self.image_cb)
         sub4 = rospy.Subscriber('/vehicle/traffic_lights', TrafficLightArray, self.traffic_cb)
 
-        #self.image_nb_pub = rospy.Publisher('/image_traffic_light', Image, queue_size=1)
-
         '''
         /vehicle/traffic_lights provides you with the location of the traffic light in 3D map space and
         helps you acquire an accurate ground truth data source for the traffic light
