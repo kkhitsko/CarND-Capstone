@@ -72,3 +72,15 @@ cd CarND-Capstone/ros
 roslaunch launch/site.launch
 ```
 5. Confirm that traffic light detection works on real life images
+
+### Project Implementation
+
+#### Traffic light detect
+
+I used the COCO model from the repository https://github.com/tensorflow/models, which contains a class of images for defining and segmenting a traffic light in an image.
+After determining the boundaries of the light image, you must determine the color of the traffic light. For this purpose, it is necessary to convert the image into a color space of HSV, and putting a mask of red, yellow and green color on the image.
+
+#### Debug
+
+For debug purpose change `is_debug` parameter in `sim_traffic_light_config.yaml` config file.
+For debug light classification process you can use rviz utility for subscibed to topic `/image_color`
