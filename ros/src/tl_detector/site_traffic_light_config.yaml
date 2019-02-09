@@ -6,3 +6,6 @@ camera_info:
 stop_line_positions:
     - [8.0, 16.2]
 is_site: True
+is_debug: True
+skip_step: 1
+threshold: 0.4
